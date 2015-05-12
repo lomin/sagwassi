@@ -41,8 +41,9 @@ if [[ ! -x /usr/local/bin/ansible ]]; then
 fi
 
 # Clone down the Ansible repo
-if [[ ! -d $SAGWASSI_DIR ]]; then
-    git clone https://github.com/$USER_NAME/$REPO_NAME.git $SAGWASSI_DIR
+if [[ ! -d $SAGWASSI_DIR ]];
+    then git clone https://github.com/$USER_NAME/$REPO_NAME.git $SAGWASSI_DIR
+    else (pushd $SAGWASSI_DIR && git pull && popd)
 fi
 
 # Provision the box

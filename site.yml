@@ -1,2 +1,4 @@
 ---
-- include: install.yml
+- hosts: all
+  roles:
+    - install

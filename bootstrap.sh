@@ -48,6 +48,3 @@ fi
 
 # Provision the box
 ansible-playbook --ask-sudo-pass -i $SAGWASSI_DIR/hosts $SAGWASSI_DIR/$SITE.yml
-
-# Link the casks.
-~/.bin/link-casks

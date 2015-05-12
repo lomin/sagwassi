@@ -6,14 +6,39 @@
   homebrew: name={{ item }} state=present
   with_items:
       - ack
-      - git
-      - vim
       - brew-cask
+      - ctags
+      - git
+      - gnupg
+      - jenv
+      - jq
+      - leiningen
+      - openssl
+      - the_silver_searcher
+      - tig
+      - vim
 
 - name: Install ancillary applications
   homebrew_cask: name={{ item }} state=present
   with_items:
+      - appcleaner
+      - caffeine
+      - clamxav
+      - dropbox
+      - evernote
       - firefox
       - google-chrome
-      - virtualbox
+      - iterm2
+      - keepassx
+      - opera
+      - pgadmin3
+      - private-eye
+      - robomongo
+      - skype
+      - sourcetree
+      - spectacle
+      - spideroak
+      - tunnelblick
       - vagrant
+      - virtualbox
+      - vlc

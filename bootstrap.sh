@@ -42,7 +42,7 @@ fi
 
 # Clone down the Ansible repo
 if [[ ! -d $SAGWASSI_DIR ]]; then
-    git clone git@github.com:$USER_NAME/$REPO_NAME.git $SAGWASSI_DIR
+    git clone https://github.com/$USER_NAME/$REPO_NAME.git $SAGWASSI_DIR
 fi
 
 # Provision the box

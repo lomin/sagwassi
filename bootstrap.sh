@@ -47,4 +47,4 @@ if [[ ! -d $SAGWASSI_DIR ]];
 fi
 
 # Provision the box
-ansible-playbook --ask-sudo-pass -i $SAGWASSI_DIR/hosts $SAGWASSI_DIR/$SITE.yml
+ansible-playbook -i $SAGWASSI_DIR/hosts $SAGWASSI_DIR/$SITE.yml

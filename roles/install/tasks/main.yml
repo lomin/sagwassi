@@ -5,7 +5,7 @@
     update_homebrew: yes
 
 - homebrew_cask:
-    name: caffeine,firefox,google-chrome,skype,vagrant,virtualbox
+    name: caffeine,firefox,google-chrome,intellij-idea,skype,vagrant,virtualbox
     state: present
 
 - name: iterm2 is a diva when it comes to installing

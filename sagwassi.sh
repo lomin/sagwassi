@@ -41,4 +41,4 @@ if [[ ! -d $SAGWASSI_DIR ]];
 fi
 
 # Provision the box
-ansible-playbook -i $SAGWASSI_DIR/hosts $SAGWASSI_DIR/$SITE.yml
+ansible-playbook -vv -i $SAGWASSI_DIR/hosts $SAGWASSI_DIR/$SITE.yml

@@ -1,44 +1,22 @@
 ---
-- name: brew update
-  homebrew: update_homebrew=yes
+- homebrew:
+    name: gnupg,jq,tig,vim
+    state: latest
+    update_homebrew: yes
 
-- name: Install required software
-  homebrew: name={{ item }} state=present
-  with_items:
-      - ack
-      - brew-cask
-      - ctags
-      - git
-      - gnupg
-      - jenv
-      - jq
-      - leiningen
-      - openssl
-      - the_silver_searcher
-      - tig
-      - vim
+- homebrew_cask:
+    name: caffeine,firefox,google-chrome,skype,vagrant,virtualbox
+    state: present
 
-- name: Install ancillary applications
-  homebrew_cask: name={{ item }} state=present
-  with_items:
-      - appcleaner
-      - caffeine
-      - clamxav
-      - dropbox
-      - evernote
-      - firefox
-      - google-chrome
-      - iterm2
-      - keepassx
-      - opera
-      - pgadmin3
-      - private-eye
-      - robomongo
-      - skype
-      - sourcetree
-      - spectacle
-      - spideroak
-      - tunnelblick
-      - vagrant
-      - virtualbox
-      - vlc
+- name: iterm2 is a diva when it comes to installing
+  block:
+    - homebrew_cask:
+        name: iterm2
+        state: present
+  rescue:
+    - debug:
+        msg: 'ignore failure message above, iterm2 is already installed'
+
+- homebrew_cask:
+    upgrade_all: true
+

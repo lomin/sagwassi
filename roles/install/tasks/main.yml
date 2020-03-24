@@ -7,6 +7,7 @@
 - homebrew_cask:
     name: caffeine,firefox,google-chrome,intellij-idea,skype,vagrant,virtualbox
     state: present
+    accept_external_apps: yes
 
 - name: iterm2 is a diva when it comes to installing
   block:

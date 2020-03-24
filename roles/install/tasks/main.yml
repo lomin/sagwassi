@@ -5,7 +5,7 @@
     update_homebrew: yes
 
 - homebrew_cask:
-    name: caffeine,firefox,google-chrome,intellij-idea,skype,vagrant,virtualbox
+    name: caffeine,firefox,google-chrome,intellij-idea,skype,vagrant
     state: present
     accept_external_apps: yes
 
@@ -17,6 +17,16 @@
   rescue:
     - debug:
         msg: 'ignore failure message above, iterm2 is already installed'
+
+- name: virtualbox has special security requirements when it comes to installing
+  block:
+    - homebrew_cask:
+        name: virtualbox
+        state: present
+        accept_external_apps: yes
+  rescue:
+    - debug:
+        msg: 'virtualbox has special security requirements when it comes to installing. Maybe you have to install virtualbox manually.'
 
 - homebrew_cask:
     upgrade_all: true

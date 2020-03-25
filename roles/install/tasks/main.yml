@@ -4,8 +4,12 @@
     state: latest
     update_homebrew: yes
 
+- homebrew_tap:
+    name: lomin/zulu
+    state: present
+
 - homebrew_cask:
-    name: caffeine,firefox,google-chrome,intellij-idea,skype,vagrant
+    name: caffeine,firefox,google-chrome,intellij-idea,skype,vagrant,zulu-jdk8
     state: present
     accept_external_apps: yes
 

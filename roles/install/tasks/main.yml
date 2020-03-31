@@ -5,11 +5,11 @@
     update_homebrew: yes
 
 - homebrew_tap:
-    name: lomin/zulu
+    name: AdoptOpenJDK/openjdk
     state: present
 
 - homebrew_cask:
-    name: caffeine,firefox,google-chrome,intellij-idea,skype,vagrant,zulu-jdk8
+    name: caffeine,firefox,google-chrome,intellij-idea,skype,vagrant,adoptopenjdk8
     state: present
     accept_external_apps: yes
 

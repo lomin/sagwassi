@@ -4,7 +4,7 @@ Extensible OS X provisioning with Ansible.
 ## Usage ##
 
 ```bash
-curl -s https://raw.githubusercontent.com/lomin/sagwassi/master/sagwassi | bash
+bash <(curl -s https://raw.githubusercontent.com/lomin/sagwassi/master/sagwassi)
 ```
 
 # About

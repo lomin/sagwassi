@@ -39,7 +39,7 @@ function getProperty {
 # Clone the Ansible repo
 if [[ ! -f $SAGWASSI_PROFILE ]];
     then
-      mv $SAGWASSI_DIR "/tmp/sagwassi_delete_me_$(base64 </dev/urandom | tr -dc 'a-zA-Z0-9' | head -c20)"
+      mv $SAGWASSI_DIR "/tmp/sagwassi_delete_me_$(base64 </dev/urandom | tr -dc 'a-zA-Z0-9' | head -c20)" || true
       echo You can customize sagwassi or use the defaults 
       read -p 'sagwassi git url (default: git@github.com:lomin/sagwassi.git): ' GIT_URL
       GIT_URL=${GIT_URL:-git@github.com:lomin/sagwassi.git}
@@ -51,7 +51,8 @@ if [[ ! -f $SAGWASSI_PROFILE ]];
     else
       GIT_URL=$(getProperty 1)
       GIT_BRANCH=$(getProperty 2)
-      (pushd $SAGWASSI_DIR && git checkout $GIT_BRANCH && git pull && popd)
+      git -C $SAGWASSI_DIR checkout $GIT_BRANCH
+      git -C $SAGWASSI_DIR pull
 fi
 
 chmod u+x $SAGWASSI_SH

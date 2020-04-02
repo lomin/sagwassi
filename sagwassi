@@ -1,0 +1,61 @@
+#!/bin/bash
+
+set -e
+
+SAGWASSI_DIR="$HOME/.sagwassi"
+SAGWASSI_PROFILE="$SAGWASSI_DIR/profile"
+SAGWASSI_SH="$SAGWASSI_DIR/sagwassi"
+
+# Download and install Command Line Tools
+if [[ ! -x /usr/bin/gcc ]]; then
+    echo "Info   | Install   | xcode"
+    xcode-select --install
+fi
+
+# Download and install Homebrew
+if [[ ! -x /usr/local/bin/brew ]]; then
+    echo "Info   | Install   | homebrew"
+    ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"
+fi
+
+# Modify the PATH
+export PATH=/usr/local/bin:$PATH
+
+# Download and install git
+if [[ ! -x /usr/local/bin/git ]]; then
+    echo "Info   | Install   | git"
+    brew install git
+fi
+
+# Download and install Ansible
+if [[ ! -x /usr/local/bin/ansible ]]; then
+    brew install ansible
+fi
+
+function getProperty {
+  tail -n+$1 $SAGWASSI_PROFILE | head -1
+}
+
+# Clone the Ansible repo
+if [[ ! -f $SAGWASSI_PROFILE ]];
+    then
+      mv $SAGWASSI_DIR "/tmp/sagwassi_delete_me_$(base64 </dev/urandom | tr -dc 'a-zA-Z0-9' | head -c20)"
+      echo You can customize sagwassi or use the defaults 
+      read -p 'sagwassi git url (default: git@github.com:lomin/sagwassi.git): ' GIT_URL
+      GIT_URL=${GIT_URL:-git@github.com:lomin/sagwassi.git}
+      read -p 'sagwassi git branch (default: master): ' GIT_BRANCH
+      GIT_BRANCH=${GIT_BRANCH:-master}
+      git clone $GIT_URL $SAGWASSI_DIR
+      echo $GIT_URL > $SAGWASSI_PROFILE
+      echo $GIT_BRANCH >> $SAGWASSI_PROFILE
+    else
+      GIT_URL=$(getProperty 1)
+      GIT_BRANCH=$(getProperty 2)
+      (pushd $SAGWASSI_DIR && git checkout $GIT_BRANCH && git pull && popd)
+fi
+
+chmod u+x $SAGWASSI_SH
+cp -f $SAGWASSI_SH /usr/local/bin/sagwassi
+
+# Provision the box
+ansible-playbook -vv -i $SAGWASSI_DIR/hosts $SAGWASSI_DIR/site.yml

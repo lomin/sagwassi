@@ -51,10 +51,10 @@ if [[ ! -f $SAGWASSI_PROFILE ]];
     else
       GIT_URL=$(getProperty 1)
       GIT_BRANCH=$(getProperty 2)
-      git -C $SAGWASSI_DIR checkout $GIT_BRANCH
-      git -C $SAGWASSI_DIR pull
 fi
 
+git -C $SAGWASSI_DIR checkout $GIT_BRANCH
+git -C $SAGWASSI_DIR pull
 chmod u+x $SAGWASSI_SH
 cp -f $SAGWASSI_SH /usr/local/bin/sagwassi
 

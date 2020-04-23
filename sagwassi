@@ -59,4 +59,4 @@ chmod u+x $SAGWASSI_SH
 cp -f $SAGWASSI_SH /usr/local/bin/sagwassi
 
 # Provision the box
-ansible-playbook -vv -i $SAGWASSI_DIR/hosts $SAGWASSI_DIR/site.yml
+ansible-playbook --ask-become-pass -vv -i $SAGWASSI_DIR/hosts $SAGWASSI_DIR/site.yml

@@ -1,4 +1,9 @@
 ---
+- copy:
+    src: files/.zshrc
+    dest: ~/.zshrc
+    force: no
+
 - homebrew:
     name: gnupg,jq,tig,vim
     state: latest

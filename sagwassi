@@ -2,54 +2,110 @@
 
 set -e
 
-SAGWASSI_DIR="$HOME/.sagwassi"
-SAGWASSI_PROFILE="$SAGWASSI_DIR/profile"
-SAGWASSI_SH="$SAGWASSI_DIR/sagwassi"
 
-if [[ ! -x /usr/bin/gcc ]]; then
+if [ ! -x /usr/bin/gcc ]; then
     echo "Info   | Install   | xcode"
     xcode-select --install
 fi
 
-if [[ ! -x /usr/local/bin/brew ]]; then
+if [ ! -x /usr/local/bin/brew ]; then
     echo "Info   | Install   | homebrew"
     ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"
 fi
 
 export PATH=/usr/local/bin:$PATH
 
-if [[ ! -x /usr/local/bin/git ]]; then
+if [ ! -x /usr/local/bin/git ]; then
     echo "Info   | Install   | git"
     brew install git
 fi
 
-if [[ ! -x /usr/local/bin/ansible ]]; then
+if [ ! -x /usr/local/bin/ansible ]; then
     brew install ansible
+  else
+    brew upgrade ansible
 fi
 
-function getProperty {
-  tail -n+$1 $SAGWASSI_PROFILE | head -1
-}
+# parse command line arguments
+for ARGUMENT in "$@"
+do
 
-if [[ ! -f $SAGWASSI_PROFILE ]];
-    then
-      ! mv $SAGWASSI_DIR "/tmp/sagwassi_delete_me_$(base64 </dev/urandom | tr -dc 'a-zA-Z0-9' | head -c20)" 2> /dev/null
+    KEY=$(echo $ARGUMENT | cut -f1 -d=)
+    VALUE=$(echo $ARGUMENT | cut -f2 -d=)   
+
+    case "$KEY" in
+            sagwassi_dir)     sagwassi_dir=${VALUE} ;;
+            sagwassi_mode)    sagwassi_mode=${VALUE} ;;
+            sagwassi_version) sagwassi_version=${VALUE} ;;
+            ansible_tags)     ansible_tags=${VALUE} ;;
+            git_url)          git_url=${VALUE} ;;
+            git_branch)       git_branch=${VALUE} ;;
+            ssh_key_name)     ssh_key_name=${VALUE} ;;
+            *)   
+    esac    
+done
+
+# ensure at least default values
+sagwassi_dir=${sagwassi_dir:-$HOME/.sagwassi}
+sagwassi_properties="$sagwassi_dir/sagwassi.properties"
+sagwassi_sh="$sagwassi_dir/sagwassi"
+ansible_tags=${ansible_tags:-all}
+
+# read from sagwassi.properties
+if [ -f $sagwassi_properties ];
+  then
+    while read LINE;
+      do
+        KEY=$(echo $LINE | cut -f1 -d=)
+        VALUE=$(echo $LINE | cut -f2 -d=)   
+
+        case "$KEY" in
+                git_url)      git_url=${VALUE} ;;
+                git_branch)   git_branch=${VALUE} ;;
+                ssh_key_name) ssh_key_name=${VALUE} ;;
+                *)   
+        esac    
+      done < $sagwassi_properties
+    else # reinstall sagwassi
+      ! mv $sagwassi_dir "/tmp/sagwassi_delete_me_$(base64 </dev/urandom | tr -dc 'a-zA-Z0-9' | head -c20)" 2> /dev/null
       echo You can customize sagwassi or use the defaults 
-      read -p 'sagwassi git url (default: https://github.com/lomin/sagwassi.git): ' GIT_URL
-      GIT_URL=${GIT_URL:-https://github.com/lomin/sagwassi.git}
-      read -p 'sagwassi git branch (default: master): ' GIT_BRANCH
-      GIT_BRANCH=${GIT_BRANCH:-master}
-      git clone $GIT_URL $SAGWASSI_DIR
-      echo $GIT_URL > $SAGWASSI_PROFILE
-      echo $GIT_BRANCH >> $SAGWASSI_PROFILE
-    else
-      GIT_URL=$(getProperty 1)
-      GIT_BRANCH=$(getProperty 2)
 fi
 
-git -C $SAGWASSI_DIR checkout $GIT_BRANCH
-git -C $SAGWASSI_DIR pull
-chmod u+x $SAGWASSI_SH
-cp -f $SAGWASSI_SH /usr/local/bin/sagwassi
+# ensure vars via prompt
+if [ -z ${git_url+x} ]; then
+      read -p 'sagwassi git url (default: https://github.com/lomin/sagwassi.git): ' git_url
+      git_url=${git_url:-https://github.com/lomin/sagwassi.git}
+fi
 
-ansible-playbook --ask-become-pass -vv -i $SAGWASSI_DIR/hosts $SAGWASSI_DIR/site.yml
+if [ -z ${git_branch+x} ]; then
+      read -p 'sagwassi git branch (default: master): ' git_branch
+      git_branch=${git_branch:-master}
+fi
+
+# clone sagwassi if not already there and save git vars
+if [ ! -f $sagwassi_properties ]; then
+  git clone $git_url $sagwassi_dir
+  echo git_url=$git_url >> $sagwassi_properties
+  echo git_branch=$git_branch >> $sagwassi_properties
+fi
+
+# ssh setup for git
+ssh_status=0
+ssh-add -l &> /dev/null || ssh_status="$?" 
+if [ "$ssh_status" -eq 2 ] && [ -z ${ssh_agent_subprocess+x} ];
+  then
+    echo "Starting ssh-agent"
+    exec /usr/bin/ssh-agent "$0" "$@" "ssh_agent_subprocess=true"
+  else
+    [ "$ssh_status" -gt 0 ] && ssh-add $ssh_key_name && ssh_status="$?"
+    [ "$ssh_status" -gt 0 ] && { echo "There is a problem with your ssh keys, sagwassi does not know how to fix that and exits."; exit $ssh_status; }
+
+    if [ "$sagwassi_mode" = local ];
+      then
+        echo sagwassi is in local mode
+      else
+        git -C $sagwassi_dir checkout $git_branch
+        git -C $sagwassi_dir pull
+    fi
+    (cd $sagwassi_dir && exec ansible-playbook --ask-become-pass -vv -i $sagwassi_dir/hosts.yml $sagwassi_dir/site.yml --extra-vars "sagwassi_dir=$sagwassi_dir home=$HOME" --tags=$ansible_tags)
+fi

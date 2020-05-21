@@ -2,7 +2,6 @@
 
 set -e
 
-
 if [ ! -x /usr/bin/gcc ]; then
     echo "Info   | Install   | xcode"
     xcode-select --install
@@ -61,11 +60,9 @@ if [ -f $sagwassi_properties ];
         VALUE=$(echo $LINE | cut -f2 -d=)   
 
         case "$KEY" in
-                ansible_skip_tags)  ansible_skip_tags=${VALUE} ;;
-                ansible_tags)       ansible_tags=${VALUE} ;;
-                git_url)            git_url=${VALUE} ;;
-                git_branch)         git_branch=${VALUE} ;;
-                ssh_key_name)       ssh_key_name=${VALUE} ;;
+                git_url)            git_url=${git_url:-VALUE} ;;
+                git_branch)         git_branch=${git_branch:-VALUE} ;;
+                ssh_key_name)       ssh_key_name=${ssh_key_name:-VALUE} ;;
                 *)   
         esac    
       done < $sagwassi_properties

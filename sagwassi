@@ -34,13 +34,14 @@ do
     VALUE=$(echo $ARGUMENT | cut -f2 -d=)   
 
     case "$KEY" in
-            sagwassi_dir)     sagwassi_dir=${VALUE} ;;
-            sagwassi_mode)    sagwassi_mode=${VALUE} ;;
-            sagwassi_version) sagwassi_version=${VALUE} ;;
-            ansible_tags)     ansible_tags=${VALUE} ;;
-            git_url)          git_url=${VALUE} ;;
-            git_branch)       git_branch=${VALUE} ;;
-            ssh_key_name)     ssh_key_name=${VALUE} ;;
+            sagwassi_dir)       sagwassi_dir=${VALUE} ;;
+            sagwassi_mode)      sagwassi_mode=${VALUE} ;;
+            sagwassi_version)   sagwassi_version=${VALUE} ;;
+            ansible_skip_tags)  ansible_skip_tags=${VALUE} ;;
+            ansible_tags)       ansible_tags=${VALUE} ;;
+            git_url)            git_url=${VALUE} ;;
+            git_branch)         git_branch=${VALUE} ;;
+            ssh_key_name)       ssh_key_name=${VALUE} ;;
             *)   
     esac    
 done
@@ -60,9 +61,11 @@ if [ -f $sagwassi_properties ];
         VALUE=$(echo $LINE | cut -f2 -d=)   
 
         case "$KEY" in
-                git_url)      git_url=${VALUE} ;;
-                git_branch)   git_branch=${VALUE} ;;
-                ssh_key_name) ssh_key_name=${VALUE} ;;
+                ansible_skip_tags)  ansible_skip_tags=${VALUE} ;;
+                ansible_tags)       ansible_tags=${VALUE} ;;
+                git_url)            git_url=${VALUE} ;;
+                git_branch)         git_branch=${VALUE} ;;
+                ssh_key_name)       ssh_key_name=${VALUE} ;;
                 *)   
         esac    
       done < $sagwassi_properties
@@ -107,5 +110,5 @@ if [ "$ssh_status" -eq 2 ] && [ -z ${ssh_agent_subprocess+x} ];
         git -C $sagwassi_dir checkout $git_branch
         git -C $sagwassi_dir pull
     fi
-    (cd $sagwassi_dir && exec ansible-playbook --ask-become-pass -vv -i $sagwassi_dir/hosts.yml $sagwassi_dir/site.yml --extra-vars "sagwassi_dir=$sagwassi_dir home=$HOME" --tags=$ansible_tags)
+    (cd $sagwassi_dir && exec ansible-playbook --ask-become-pass -vv -i $sagwassi_dir/hosts.yml $sagwassi_dir/site.yml --extra-vars "sagwassi_dir=$sagwassi_dir home=$HOME" --tags=$ansible_tags --skip-tags=$ansible_skip_tags)
 fi

@@ -60,9 +60,9 @@ if [ -f $sagwassi_properties ];
         VALUE=$(echo $LINE | cut -f2 -d=)   
 
         case "$KEY" in
-                git_url)            git_url=${git_url:-VALUE} ;;
-                git_branch)         git_branch=${git_branch:-VALUE} ;;
-                ssh_key_name)       ssh_key_name=${ssh_key_name:-VALUE} ;;
+                git_url)            git_url=${git_url:-$VALUE} ;;
+                git_branch)         git_branch=${git_branch:-$VALUE} ;;
+                ssh_key_name)       ssh_key_name=${ssh_key_name:-$VALUE} ;;
                 *)   
         esac    
       done < $sagwassi_properties

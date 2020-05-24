@@ -36,6 +36,7 @@ do
             sagwassi_dir)       sagwassi_dir=${VALUE} ;;
             sagwassi_mode)      sagwassi_mode=${VALUE} ;;
             sagwassi_version)   sagwassi_version=${VALUE} ;;
+            ansible_flags)      ansible_flags=${VALUE} ;;
             ansible_skip_tags)  ansible_skip_tags=${VALUE} ;;
             ansible_tags)       ansible_tags=${VALUE} ;;
             git_url)            git_url=${VALUE} ;;
@@ -49,6 +50,7 @@ done
 sagwassi_dir=${sagwassi_dir:-$HOME/.sagwassi}
 sagwassi_properties="$sagwassi_dir/sagwassi.properties"
 sagwassi_sh="$sagwassi_dir/sagwassi"
+ansible_flags=${ansible_flags:-"--ask-become-pass,-vv"}
 ansible_tags=${ansible_tags:-all}
 
 # read from sagwassi.properties
@@ -107,5 +109,5 @@ if [ "$ssh_status" -eq 2 ] && [ -z ${ssh_agent_subprocess+x} ];
         git -C $sagwassi_dir checkout $git_branch
         git -C $sagwassi_dir pull
     fi
-    (cd $sagwassi_dir && exec ansible-playbook --ask-become-pass -vv -i $sagwassi_dir/hosts.yml $sagwassi_dir/site.yml --extra-vars "sagwassi_dir=$sagwassi_dir home=$HOME" --tags=$ansible_tags --skip-tags=$ansible_skip_tags)
+    (cd $sagwassi_dir && exec ansible-playbook $(echo $ansible_flags | tr , " ") -i $sagwassi_dir/hosts.yml $sagwassi_dir/site.yml --extra-vars "sagwassi_dir=$sagwassi_dir home=$HOME" --tags=$ansible_tags --skip-tags=$ansible_skip_tags)
 fi

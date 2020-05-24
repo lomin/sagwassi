@@ -1,0 +1,25 @@
+---
+- name: install terminal utilities
+  homebrew:
+    name: gnupg,jq,fd,fzf,ripgrep,romkatv/powerlevel10k/powerlevel10k,tig,vim
+    state: latest
+  tags:
+    - homebrew
+
+- name: copy .zshrc
+  copy:
+    src: files/.zshrc
+    dest: "{{ home }}/.zshrc"
+    owner: "{{ user }}"
+
+- name: copy vimfiles
+  repo: 'git@github.com:lomin/vimfiles.git'
+  dest: "{{ home }}/development/vimfiles"
+  update: yes
+
+- name: link .vimrc
+  file:
+    src: "{{ home }}/development/vimfiles/.vimrc"
+    dest: "{{ home }}/.vimrc"
+    owner: "{{ user }}"
+    state: link

@@ -1,0 +1,3 @@
+---
+- name: Show hidden files in finder by default
+  osx_defaults: domain=com.apple.finder key=AppleShowAllFiles type=bool value=true state=present

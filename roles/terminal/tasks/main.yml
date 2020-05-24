@@ -24,3 +24,14 @@
     dest: "{{ home }}/.vimrc"
     owner: "{{ user }}"
     state: link
+
+- name: iterm2 is a diva when it comes to installing
+  block:
+    - homebrew_cask:
+        name: iterm2
+        state: latest
+  rescue:
+    - debug:
+        msg: 'ignore failure message above, iterm2 is already installed'
+  tags:
+    - homebrew

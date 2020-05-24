@@ -1,0 +1,19 @@
+---
+- name: copy isunsin
+  git:
+    repo: git@github.com:lomin/isunsin.git
+    dest: "{{ home }}/.isunsin"
+    update: yes
+
+- name: link isunsin
+  file:
+    src: "{{ home }}/.isunsin/isunsin"
+    dest: /usr/local/bin/isunsin
+    owner: "{{ user }}"
+    state: link
+
+- name: copy isunsin config
+  copy:
+    src: files/config
+    dest: "{{ home }}/.isunsin/config"
+    owner: "{{ user }}"

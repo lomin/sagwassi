@@ -13,9 +13,9 @@
     owner: "{{ user }}"
 
 - name: copy vimfiles
-  repo: 'git@github.com:lomin/vimfiles.git'
-  dest: "{{ home }}/development/vimfiles"
-  update: yes
+    repo: 'git@github.com:lomin/vimfiles.git'
+    dest: "{{ home }}/development/vimfiles"
+    update: yes
 
 - name: link .vimrc
   file:

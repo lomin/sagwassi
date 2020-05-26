@@ -2,6 +2,8 @@
 
 set -e
 
+all_args=${all_args:-$@}
+
 if [ ! -x /usr/bin/gcc ]; then
     echo "Info   | Install   | xcode"
     xcode-select --install
@@ -26,7 +28,7 @@ if [ ! -x /usr/local/bin/ansible ]; then
 fi
 
 # parse command line arguments
-for ARGUMENT in "$@"
+for ARGUMENT in $all_args
 do
 
     KEY=$(echo $ARGUMENT | cut -f1 -d=)
@@ -105,7 +107,7 @@ ssh-add -l &> /dev/null || ssh_status="$?"
 if [ "$ssh_status" -eq 2 ] && [ -z ${ssh_agent_subprocess+x} ];
   then
     echo "Starting ssh-agent"
-    exec /usr/bin/ssh-agent "$0" "$@" "ssh_agent_subprocess=true"
+    exec /usr/bin/ssh-agent "$0" "$all_args" "ssh_agent_subprocess=true"
   else
     [ "$ssh_status" -gt 0 ] && ssh-add $ssh_key_name && ssh_status="$?"
     [ "$ssh_status" -gt 0 ] && { echo "There is a problem with your ssh keys, sagwassi does not know how to fix that and exits."; exit $ssh_status; }
@@ -117,5 +119,5 @@ if [ "$ssh_status" -eq 2 ] && [ -z ${ssh_agent_subprocess+x} ];
         git -C $sagwassi_dir checkout $git_branch
         git -C $sagwassi_dir pull
     fi
-    (cd $sagwassi_dir && exec ansible-playbook $(echo $ansible_flags | tr , " ") -i $sagwassi_dir/hosts.yml $sagwassi_dir/site.yml --extra-vars "$@ sagwassi_dir=$sagwassi_dir home=$home user=$user" --tags=$ansible_tags --skip-tags=$ansible_skip_tags)
+    (cd $sagwassi_dir && exec ansible-playbook $(echo $ansible_flags | tr , " ") -i $sagwassi_dir/hosts.yml $sagwassi_dir/site.yml --extra-vars "$all_args sagwassi_dir=$sagwassi_dir home=$home user=$user" --tags=$ansible_tags --skip-tags=$ansible_skip_tags)
 fi

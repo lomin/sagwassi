@@ -36,6 +36,7 @@ do
             home)               home=${VALUE} ;;
             sagwassi_dir)       sagwassi_dir=${VALUE} ;;
             sagwassi_mode)      sagwassi_mode=${VALUE} ;;
+            sagwassi_reinstall) sagwassi_reinstall=${VALUE} ;;
             sagwassi_version)   sagwassi_version=${VALUE} ;;
             ansible_flags)      ansible_flags=${VALUE} ;;
             ansible_skip_tags)  ansible_skip_tags=${VALUE} ;;
@@ -52,7 +53,7 @@ sagwassi_dir=${sagwassi_dir:-$HOME/.sagwassi}
 sagwassi_properties="$sagwassi_dir/sagwassi.properties"
 
 # read from sagwassi.properties
-if [ -f $sagwassi_properties ];
+if [ -f $sagwassi_properties ] && [ -z ${sagwassi_reinstall+x} ];
   then
     while read LINE;
       do
@@ -70,7 +71,7 @@ if [ -f $sagwassi_properties ];
       done < $sagwassi_properties
     else # reinstall sagwassi
       ! mv $sagwassi_dir "/tmp/sagwassi_delete_me_$(base64 </dev/urandom | tr -dc 'a-zA-Z0-9' | head -c20)" 2> /dev/null
-      echo You can customize sagwassi or use the defaults 
+      echo "Reinstalling sagwassi ..."
 fi
 
 # ensure at least default values

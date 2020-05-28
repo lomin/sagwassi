@@ -17,3 +17,4 @@
     src: files/config
     dest: "{{ home }}/.isunsin/config"
     owner: "{{ user }}"
+    force: no

@@ -1,7 +1,7 @@
 ---
 - name: copy isunsin
   git:
-    repo: git@github.com:lomin/isunsin.git
+    repo: https://github.com/lomin/isunsin.git
     dest: "{{ home }}/.isunsin"
     update: yes
   tags:

@@ -14,7 +14,7 @@
 
 - name: copy vimfiles
   git:
-    repo: git@github.com:lomin/vimfiles.git
+    repo: https://github.com/lomin/vimfiles.git
     dest: "{{ home }}/development/vimfiles"
     update: yes
 

@@ -4,6 +4,8 @@
     repo: git@github.com:lomin/isunsin.git
     dest: "{{ home }}/.isunsin"
     update: yes
+  tags:
+    - isunsin
 
 - name: link isunsin
   file:
@@ -11,6 +13,8 @@
     dest: /usr/local/bin/isunsin
     owner: "{{ user }}"
     state: link
+  tags:
+    - isunsin
 
 - name: copy isunsin config
   copy:
@@ -18,3 +22,5 @@
     dest: "{{ home }}/.isunsin/config"
     owner: "{{ user }}"
     force: no
+  tags:
+    - isunsin

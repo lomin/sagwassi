@@ -5,19 +5,23 @@ set -e
 all_args=${all_args:-$@}
 
 if [ ! -x /usr/bin/gcc ]; then
-    echo "Info   | Install   | xcode"
+    echo "gcc does not exist, installing xcode-select ..."
     xcode-select --install
+  else if ! /usr/bin/gcc -help &> /dev/null ; then
+    echo "gcc does not work properly, reinstalling xcode-select ..."
+    xcode-select --install
+  fi
 fi
 
 if [ ! -x /usr/local/bin/brew ]; then
-    echo "Info   | Install   | homebrew"
+    echo "installing homebrew ..."
     ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"
 fi
 
 export PATH=/usr/local/bin:$PATH
 
 if [ ! -x /usr/local/bin/git ]; then
-    echo "Info   | Install   | git"
+    echo "installing git ..."
     brew install git
 fi
 
@@ -39,6 +43,7 @@ do
             sagwassi_dir)       sagwassi_dir=${VALUE} ;;
             sagwassi_mode)      sagwassi_mode=${VALUE} ;;
             sagwassi_reinstall) sagwassi_reinstall=${VALUE} ;;
+            sagwassi_sh)        sagwassi_sh=${VALUE} ;;
             sagwassi_version)   sagwassi_version=${VALUE} ;;
             ansible_flags)      ansible_flags=${VALUE} ;;
             ansible_skip_tags)  ansible_skip_tags=${VALUE} ;;
@@ -79,7 +84,7 @@ fi
 # ensure at least default values
 home=${home:-$HOME}
 user=${user:-$USER}
-sagwassi_sh="$sagwassi_dir/sagwassi"
+sagwassi_sh=${sagwassi_sh:-"$0"}
 ansible_flags=${ansible_flags:-"--ask-become-pass,-vv"}
 ansible_tags=${ansible_tags:-all}
 
@@ -107,7 +112,7 @@ ssh-add -l &> /dev/null || ssh_status="$?"
 if [ "$ssh_status" -eq 2 ] && [ -z ${ssh_agent_subprocess+x} ];
   then
     echo "Starting ssh-agent"
-    exec /usr/bin/ssh-agent "$0" "$all_args" "ssh_agent_subprocess=true"
+    exec /usr/bin/ssh-agent "$sagwassi_sh" "$all_args" "ssh_agent_subprocess=true"
   else
     [ "$ssh_status" -gt 0 ] && ssh-add $ssh_key_name && ssh_status="$?"
     [ "$ssh_status" -gt 0 ] && { echo "There is a problem with your ssh keys, sagwassi does not know how to fix that and exits."; exit $ssh_status; }
@@ -119,5 +124,5 @@ if [ "$ssh_status" -eq 2 ] && [ -z ${ssh_agent_subprocess+x} ];
         git -C $sagwassi_dir checkout $git_branch
         git -C $sagwassi_dir pull
     fi
-    (cd $sagwassi_dir && exec ansible-playbook $(echo $ansible_flags | tr , " ") -i $sagwassi_dir/hosts.yml $sagwassi_dir/site.yml --extra-vars "$all_args sagwassi_dir=$sagwassi_dir home=$home user=$user" --tags=$ansible_tags --skip-tags=$ansible_skip_tags)
+    (cd $sagwassi_dir && exec ansible-playbook $(echo $ansible_flags | tr , " ") -i $sagwassi_dir/hosts.yml $sagwassi_dir/site.yml --extra-vars "$all_args sagwassi_dir=$sagwassi_dir sagwassi_sh=$sagwassi_sh home=$home user=$user" --tags=$ansible_tags --skip-tags=$ansible_skip_tags)
 fi

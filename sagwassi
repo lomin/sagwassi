@@ -117,6 +117,7 @@ else
   if [ "$sagwassi_mode" = local ]; then
     echo sagwassi is in local mode
   else
+    git -C "$sagwassi_dir" fetch
     git -C "$sagwassi_dir" checkout "$git_branch"
     git -C "$sagwassi_dir" pull
   fi

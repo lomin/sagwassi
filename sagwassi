@@ -83,24 +83,6 @@ sagwassi_sh=${sagwassi_sh:-"$0"}
 ansible_flags=${ansible_flags:-"--ask-become-pass,-vv"}
 ansible_tags=${ansible_tags:-all}
 
-# ensure vars via prompt
-if [ -z ${git_url+x} ]; then
-  read -rp 'sagwassi git url (default: https://github.com/lomin/sagwassi.git): ' git_url
-  git_url=${git_url:-https://github.com/lomin/sagwassi.git}
-fi
-
-if [ -z ${git_branch+x} ]; then
-  read -rp 'sagwassi git branch (default: master): ' git_branch
-  git_branch=${git_branch:-master}
-fi
-
-# clone sagwassi if not already there and save git vars
-if [ ! -f "$sagwassi_properties" ]; then
-  git clone "$git_url" "$sagwassi_dir"
-  echo git_url="$git_url" >>"$sagwassi_properties"
-  echo git_branch="$git_branch" >>"$sagwassi_properties"
-fi
-
 # ssh setup for git
 ssh_status=0
 ssh-add -l &>/dev/null || ssh_status="$?"
@@ -113,6 +95,24 @@ else
     echo "There is a problem with your ssh keys, sagwassi does not know how to fix that and exits."
     exit $ssh_status
   }
+
+  # ensure vars via prompt
+  if [ -z ${git_url+x} ]; then
+    read -rp 'sagwassi git url (default: https://github.com/lomin/sagwassi.git): ' git_url
+    git_url=${git_url:-https://github.com/lomin/sagwassi.git}
+  fi
+
+  if [ -z ${git_branch+x} ]; then
+    read -rp 'sagwassi git branch (default: master): ' git_branch
+    git_branch=${git_branch:-master}
+  fi
+
+  # clone sagwassi if not already there and save git vars
+  if [ ! -f "$sagwassi_properties" ]; then
+    git clone "$git_url" "$sagwassi_dir"
+    echo git_url="$git_url" >>"$sagwassi_properties"
+    echo git_branch="$git_branch" >>"$sagwassi_properties"
+  fi
 
   if [ "$sagwassi_mode" = local ]; then
     echo sagwassi is in local mode

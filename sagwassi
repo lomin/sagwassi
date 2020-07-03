@@ -5,80 +5,75 @@ set -e
 all_args=${all_args:-$@}
 
 if [ ! -x /usr/bin/gcc ]; then
-    echo "gcc does not exist, installing xcode-select ..."
-    xcode-select --install
-  else if ! /usr/bin/gcc -help &> /dev/null ; then
-    echo "gcc does not work properly, reinstalling xcode-select ..."
-    xcode-select --install
-  fi
+  echo "gcc does not exist, installing xcode-select ..."
+  xcode-select --install
+elif ! /usr/bin/gcc -help &>/dev/null; then
+  echo "gcc does not work properly, reinstalling xcode-select ..."
+  xcode-select --install
 fi
 
 if [ ! -x /usr/local/bin/brew ]; then
-    echo "installing homebrew ..."
-    ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"
+  echo "installing homebrew ..."
+  ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"
 fi
 
 export PATH=/usr/local/bin:$PATH
 
 if [ ! -x /usr/local/bin/git ]; then
-    echo "installing git ..."
-    brew install git
+  echo "installing git ..."
+  brew install git
 fi
 
 if [ ! -x /usr/local/bin/ansible ]; then
-    brew install ansible
-  else
-    brew upgrade ansible
+  brew install ansible
+else
+  brew upgrade ansible
 fi
 
 # parse command line arguments
-for ARGUMENT in $all_args
-do
+for ARGUMENT in $all_args; do
 
-    KEY=$(echo $ARGUMENT | cut -f1 -d=)
-    VALUE=$(echo $ARGUMENT | cut -f2 -d=)   
+  KEY=$(echo "$ARGUMENT" | cut -f1 -d=)
+  VALUE=$(echo "$ARGUMENT" | cut -f2 -d=)
 
-    case "$KEY" in
-            home)               home=${VALUE} ;;
-            sagwassi_dir)       sagwassi_dir=${VALUE} ;;
-            sagwassi_mode)      sagwassi_mode=${VALUE} ;;
-            sagwassi_reinstall) sagwassi_reinstall=${VALUE} ;;
-            sagwassi_sh)        sagwassi_sh=${VALUE} ;;
-            sagwassi_version)   sagwassi_version=${VALUE} ;;
-            ansible_flags)      ansible_flags=${VALUE} ;;
-            ansible_skip_tags)  ansible_skip_tags=${VALUE} ;;
-            ansible_tags)       ansible_tags=${VALUE} ;;
-            git_url)            git_url=${VALUE} ;;
-            git_branch)         git_branch=${VALUE} ;;
-            ssh_key_name)       ssh_key_name=${VALUE} ;;
-            user)               user=${VALUE} ;;
-            *)   
-    esac    
+  case "$KEY" in
+  home) home=${VALUE} ;;
+  sagwassi_dir) sagwassi_dir=${VALUE} ;;
+  sagwassi_mode) sagwassi_mode=${VALUE} ;;
+  sagwassi_reinstall) sagwassi_reinstall=${VALUE} ;;
+  sagwassi_sh) sagwassi_sh=${VALUE} ;;
+  ansible_flags) ansible_flags=${VALUE} ;;
+  ansible_skip_tags) ansible_skip_tags=${VALUE} ;;
+  ansible_tags) ansible_tags=${VALUE} ;;
+  git_url) git_url=${VALUE} ;;
+  git_branch) git_branch=${VALUE} ;;
+  ssh_key_name) ssh_key_name=${VALUE} ;;
+  user) user=${VALUE} ;;
+  *) ;;
+  esac
 done
 
 sagwassi_dir=${sagwassi_dir:-$HOME/.sagwassi}
 sagwassi_properties="$sagwassi_dir/sagwassi.properties"
 
 # read from sagwassi.properties
-if [ -f $sagwassi_properties ] && [ -z ${sagwassi_reinstall+x} ];
-  then
-    while read LINE;
-      do
-        KEY=$(echo $LINE | cut -f1 -d=)
-        VALUE=$(echo $LINE | cut -f2 -d=)   
+if [ -f "$sagwassi_properties" ] && [ -z ${sagwassi_reinstall+x} ]; then # ignore SC2154
+  while read -r LINE; do
+    KEY=$(echo "$LINE" | cut -f1 -d=)
+    VALUE=$(echo "$LINE" | cut -f2 -d=)
 
-        case "$KEY" in
-                git_url)            git_url=${git_url:-$VALUE} ;;
-                git_branch)         git_branch=${git_branch:-$VALUE} ;;
-                home)               home=${home:-$VALUE} ;;
-                ssh_key_name)       ssh_key_name=${ssh_key_name:-$VALUE} ;;
-                user)               user=${user:-$VALUE} ;;
-                *)   
-        esac    
-      done < $sagwassi_properties
-    else # reinstall sagwassi
-      ! mv $sagwassi_dir "/tmp/sagwassi_delete_me_$(base64 </dev/urandom | tr -dc 'a-zA-Z0-9' | head -c20)" 2> /dev/null
-      echo "Reinstalling sagwassi ..."
+    case "$KEY" in
+    git_url) git_url=${git_url:-$VALUE} ;;
+    git_branch) git_branch=${git_branch:-$VALUE} ;;
+    home) home=${home:-$VALUE} ;;
+    ssh_key_name) ssh_key_name=${ssh_key_name:-$VALUE} ;;
+    user) user=${user:-$VALUE} ;;
+    *) ;;
+    esac
+  done <"$sagwassi_properties"
+else # reinstall sagwassi
+  mv "$sagwassi_dir" "/tmp/sagwassi_delete_me_$(base64 </dev/urandom | tr -dc 'a-zA-Z0-9' | head -c20)" 2>/dev/null
+  echo "Reinstalling sagwassi ..."
 fi
 
 # ensure at least default values
@@ -90,39 +85,41 @@ ansible_tags=${ansible_tags:-all}
 
 # ensure vars via prompt
 if [ -z ${git_url+x} ]; then
-      read -p 'sagwassi git url (default: https://github.com/lomin/sagwassi.git): ' git_url
-      git_url=${git_url:-https://github.com/lomin/sagwassi.git}
+  read -rp 'sagwassi git url (default: https://github.com/lomin/sagwassi.git): ' git_url
+  git_url=${git_url:-https://github.com/lomin/sagwassi.git}
 fi
 
 if [ -z ${git_branch+x} ]; then
-      read -p 'sagwassi git branch (default: master): ' git_branch
-      git_branch=${git_branch:-master}
+  read -rp 'sagwassi git branch (default: master): ' git_branch
+  git_branch=${git_branch:-master}
 fi
 
 # clone sagwassi if not already there and save git vars
-if [ ! -f $sagwassi_properties ]; then
-  git clone $git_url $sagwassi_dir
-  echo git_url=$git_url >> $sagwassi_properties
-  echo git_branch=$git_branch >> $sagwassi_properties
+if [ ! -f "$sagwassi_properties" ]; then
+  git clone "$git_url" "$sagwassi_dir"
+  echo git_url="$git_url" >>"$sagwassi_properties"
+  echo git_branch="$git_branch" >>"$sagwassi_properties"
 fi
 
 # ssh setup for git
 ssh_status=0
-ssh-add -l &> /dev/null || ssh_status="$?" 
-if [ "$ssh_status" -eq 2 ] && [ -z ${ssh_agent_subprocess+x} ];
-  then
-    echo "Starting ssh-agent"
-    exec /usr/bin/ssh-agent "$sagwassi_sh" "$all_args" "ssh_agent_subprocess=true"
-  else
-    [ "$ssh_status" -gt 0 ] && ssh-add $ssh_key_name && ssh_status="$?"
-    [ "$ssh_status" -gt 0 ] && { echo "There is a problem with your ssh keys, sagwassi does not know how to fix that and exits."; exit $ssh_status; }
+ssh-add -l &>/dev/null || ssh_status="$?"
+if [ "$ssh_status" -eq 2 ] && [ -z ${ssh_agent_subprocess+x} ]; then # ignore SC2154
+  echo "Starting ssh-agent"
+  exec /usr/bin/ssh-agent "$sagwassi_sh" "$all_args" "ssh_agent_subprocess=true"
+else
+  [ "$ssh_status" -gt 0 ] && ssh-add "$ssh_key_name" && ssh_status="$?"
+  [ "$ssh_status" -gt 0 ] && {
+    echo "There is a problem with your ssh keys, sagwassi does not know how to fix that and exits."
+    exit $ssh_status
+  }
 
-    if [ "$sagwassi_mode" = local ];
-      then
-        echo sagwassi is in local mode
-      else
-        git -C $sagwassi_dir checkout $git_branch
-        git -C $sagwassi_dir pull
-    fi
-    (cd $sagwassi_dir && exec ansible-playbook $(echo $ansible_flags | tr , " ") -i $sagwassi_dir/hosts.yml $sagwassi_dir/site.yml --extra-vars "$all_args sagwassi_dir=$sagwassi_dir sagwassi_sh=$sagwassi_sh home=$home user=$user" --tags=$ansible_tags --skip-tags=$ansible_skip_tags)
+  if [ "$sagwassi_mode" = local ]; then
+    echo sagwassi is in local mode
+  else
+    git -C "$sagwassi_dir" checkout "$git_branch"
+    git -C "$sagwassi_dir" pull
+  fi
+  read -ra ansible_flags_array < <(echo "$ansible_flags" | tr , " ")
+  (cd "$sagwassi_dir" && exec ansible-playbook "${ansible_flags_array[@]}" -i "$sagwassi_dir/hosts.yml" "$sagwassi_dir/site.yml" --extra-vars "$all_args sagwassi_dir=$sagwassi_dir sagwassi_sh=$sagwassi_sh home=$home user=$user" --tags="$ansible_tags" --skip-tags="$ansible_skip_tags")
 fi

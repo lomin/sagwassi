@@ -90,7 +90,7 @@ if [ "$ssh_status" -eq 2 ] && [ -z ${ssh_agent_subprocess+x} ]; then # ignore SC
   echo "Starting ssh-agent"
   exec /usr/bin/ssh-agent "$sagwassi_sh" "$all_args" "ssh_agent_subprocess=true"
 else
-  [ "$ssh_status" -gt 0 ] && ssh-add "$ssh_key_name" && ssh_status="$?"
+  [ "$ssh_status" -gt 0 ] && ssh-add ${ssh_key_name:+"$ssh_key_name"} && ssh_status="$?"
   [ "$ssh_status" -gt 0 ] && {
     echo "There is a problem with your ssh keys, sagwassi does not know how to fix that and exits."
     exit $ssh_status

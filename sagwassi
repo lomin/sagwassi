@@ -72,7 +72,7 @@ if [ -f "$sagwassi_properties" ] && [ -z ${sagwassi_reinstall+x} ]; then # ignor
     esac
   done <"$sagwassi_properties"
 else # reinstall sagwassi
-  mv "$sagwassi_dir" "/tmp/sagwassi_delete_me_$(base64 </dev/urandom | tr -dc 'a-zA-Z0-9' | head -c20)" 2>/dev/null
+  mv "$sagwassi_dir" "/tmp/sagwassi_delete_me_$(base64 </dev/urandom | tr -dc 'a-zA-Z0-9' | head -c20)" 2>/dev/null || true
   echo "Reinstalling sagwassi ..."
 fi
 

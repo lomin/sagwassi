@@ -32,13 +32,7 @@ fi
 
 all_args=${all_args:-$@}
 
-if [ ! -x /usr/bin/gcc ]; then
-  echo "gcc does not exist, installing xcode-select ..."
-  xcode-select --install
-elif ! /usr/bin/gcc -help &>/dev/null; then
-  echo "gcc does not work properly, reinstalling xcode-select ..."
-  xcode-select --install
-fi
+xcode-select --install 2>/dev/null || true
 
 if [ ! -x /usr/local/bin/brew ]; then
   echo "installing homebrew ..."

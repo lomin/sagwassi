@@ -1,6 +1,34 @@
 #!/bin/bash
+### Usage: sagwassi [<option>*]
+###
+### where <option> is one of:
+###   ansible_flags=<csv>      Run ansible with flags in <csv>
+###                            Example: ansible_flags=--step,--version
+###                            Default: ansible_flags=--ask-become-pass,-vv
+###   ansible_skip_tags=<csv>  Make ansible skip tasks that are marked with tags contained in <csv>
+###                            Example: ansible_skip_tags=debug,sagwassi
+###   ansible_tags=<csv>       Make ansible only run tasks that are marked with tags contained in <csv>
+###                            Example: ansible_tags=debug,sagwassi
+###   git_branch=<branch>      Set remote git branch of sagwassi to <branch>
+###   git_url=<url>            Set remote git repository of sagwassi to <url>
+###   home=<path>              Run ansible with <path> as home directory
+###   sagwassi_dir=<path>      Set the base dir of sagwassi to <path>
+###   sagwassi_mode=local      Do not pull latest sagwassi updates from repository
+###   sagwassi_reinstall=true  Remove existing installation and reinstall sagwassi
+###   sagwassi_sh=<path>       Use sagwassi script from <path> if sagwassi must restart itself
+###   ssh_key=<path>           Use SSH key from <path>
+###   user=<name>              Run as user <name>
 
 set -e
+
+help() {
+  awk -F'### ' '/^###/ { print $2 }' "$0"
+}
+
+if [[ "$1" == "-h" ]]; then
+  help "$@"
+  exit 0
+fi
 
 all_args=${all_args:-$@}
 
@@ -47,7 +75,7 @@ for ARGUMENT in $all_args; do
   ansible_tags) ansible_tags=${VALUE} ;;
   git_url) git_url=${VALUE} ;;
   git_branch) git_branch=${VALUE} ;;
-  ssh_key_name) ssh_key_name=${VALUE} ;;
+  ssh_key) ssh_key=${VALUE} ;;
   user) user=${VALUE} ;;
   *) ;;
   esac
@@ -66,7 +94,7 @@ if [ -f "$sagwassi_properties" ] && [ -z ${sagwassi_reinstall+x} ]; then # ignor
     git_url) git_url=${git_url:-$VALUE} ;;
     git_branch) git_branch=${git_branch:-$VALUE} ;;
     home) home=${home:-$VALUE} ;;
-    ssh_key_name) ssh_key_name=${ssh_key_name:-$VALUE} ;;
+    ssh_key) ssh_key=${ssh_key:-$VALUE} ;;
     user) user=${user:-$VALUE} ;;
     *) ;;
     esac
@@ -90,7 +118,7 @@ if [ "$ssh_status" -eq 2 ] && [ -z ${ssh_agent_subprocess+x} ]; then # ignore SC
   echo "Starting ssh-agent"
   exec /usr/bin/ssh-agent "$sagwassi_sh" "$all_args" "ssh_agent_subprocess=true"
 else
-  [ "$ssh_status" -gt 0 ] && ssh-add ${ssh_key_name:+"$ssh_key_name"} && ssh_status="$?"
+  [ "$ssh_status" -gt 0 ] && ssh-add ${ssh_key:+"$ssh_key"} && ssh_status="$?"
   [ "$ssh_status" -gt 0 ] && {
     echo "There is a problem with your ssh keys, sagwassi does not know how to fix that and exits."
     exit $ssh_status

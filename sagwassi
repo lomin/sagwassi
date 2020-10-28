@@ -52,6 +52,14 @@ else
   HOMEBREW_NO_AUTO_UPDATE=1 brew upgrade ansible
 fi
 
+if [ ! -x /usr/local/bin/jq ]; then
+  brew install jq
+fi
+
+python_version=$(brew info ansible --json | jq '[.[] | .dependencies]' | grep python | head -1 | tr -d [:blank:] | tr -d \")
+python_path="/usr/local/opt/$python_version/bin"
+ansible_python_interpreter="$python_path/python3"
+
 # parse command line arguments
 for ARGUMENT in $all_args; do
 
@@ -144,5 +152,5 @@ else
     git -C "$sagwassi_dir" pull
   fi
   read -ra ansible_flags_array < <(echo "$ansible_flags" | tr , " ")
-  (cd "$sagwassi_dir" && exec ansible-playbook "${ansible_flags_array[@]}" -i "$sagwassi_dir/hosts.yml" "$sagwassi_dir/site.yml" --extra-vars "$all_args sagwassi_dir=$sagwassi_dir sagwassi_sh=$sagwassi_sh home=$home user=$user" --tags="$ansible_tags" --skip-tags="$ansible_skip_tags")
+  (cd "$sagwassi_dir" && exec ansible-playbook "${ansible_flags_array[@]}" -i "$sagwassi_dir/hosts.yml" "$sagwassi_dir/site.yml" --extra-vars "$all_args sagwassi_dir=$sagwassi_dir sagwassi_sh=$sagwassi_sh home=$home user=$user python_version=$python_version python_path=$python_path ansible_python_interpreter=$ansible_python_interpreter" --tags="$ansible_tags" --skip-tags="$ansible_skip_tags")
 fi

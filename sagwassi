@@ -32,7 +32,10 @@ fi
 
 all_args=${all_args:-$@}
 
-xcode-select --install 2>/dev/null || true
+if ! xcode-select -v 2>/dev/null ; then
+  echo "installing xcode commandline tools ..."
+  xcode-select --install 2>/dev/null || true
+fi
 
 if [ ! -x /usr/local/bin/brew ]; then
   echo "installing homebrew ..."

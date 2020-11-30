@@ -1,18 +1,21 @@
 ---
 - name: install terminal utilities
   apt:
-    name: zsh,gnupg,jq,fd,fzf,ripgrep,romkatv/powerlevel10k/powerlevel10k,tig,vim
+    name: zsh,gnupg,jq,tig,vim
     state: latest
     update_cache: yes
+  become: yes
 
 - name: activate zsh
   command: chsh -s /usr/bin/zsh
+  become: true
 
 - name: copy .zshrc
   copy:
     src: files/.zshrc
     dest: "{{ home }}/.zshrc"
     owner: "{{ user }}"
+    force: yes
 
 - name: copy vimfiles
   git:
@@ -33,3 +36,4 @@
     dest: ~/powerlevel10k
     depth: 1
     
+

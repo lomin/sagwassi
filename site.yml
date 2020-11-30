@@ -1,7 +1,18 @@
 ---
-- hosts: localhost
-  roles:
-    - sagwassi
-    - isunsin
-    - osx
-    - terminal
+  - name: talk to all hosts just so we can learn about them
+    hosts: all
+    tasks:
+      - name: Classify hosts depending on their OS distribution
+        group_by:
+         key: os_{{ ansible_facts['distribution'] }}
+
+  - hosts: os_MacOSX
+    roles:
+      - sagwassi
+      - isunsin
+      - osx
+      - terminal
+
+  - hosts: os_Ubuntu
+    roles:
+      - sagwassi_ubuntu

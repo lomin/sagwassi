@@ -32,35 +32,58 @@ fi
 
 all_args=${all_args:-$@}
 
-if ! xcode-select -v 2>/dev/null ; then
+if [[ "$(uname)" == "Darwin" ]]; then
+  os_darwin=true
+else
+  os_linux=true
+fi
+if [ -n ${os_darwin+x} ] && ! xcode-select -v >/dev/null 2>/dev/null; then
   echo "installing xcode commandline tools ..."
   xcode-select --install 2>/dev/null || true
 fi
 
-if [ ! -x /usr/local/bin/brew ]; then
-  echo "installing homebrew ..."
-  ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"
+if [ -n ${os_darwin+x} ] ; then
+  export PATH=/usr/local/bin:$PATH
+  if [ ! -x /usr/local/bin/brew ]; then
+    echo "installing homebrew ..."
+    ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"
+  fi
 fi
 
-export PATH=/usr/local/bin:$PATH
-
-if [ ! -x /usr/local/bin/git ]; then
+if ! git help >/dev/null 2>/dev/null; then
   echo "installing git ..."
-  brew install git
+  if [ -n ${os_darwin+x} ]; then
+    brew install git
+  else
+    sudo apt-get install git
+  fi
 fi
 
-if [ ! -x /usr/local/bin/ansible ]; then
-  brew install ansible
+if ! ansible -h >/dev/null 2>/dev/null; then
+  if [ -n ${os_darwin+x} ]; then
+    brew install ansible
+  else
+    sudo apt-get install ansible
+  fi
 else
-  HOMEBREW_NO_AUTO_UPDATE=1 brew upgrade ansible
+  if [ -n ${os_darwin+x} ]; then
+    HOMEBREW_NO_AUTO_UPDATE=1 brew upgrade ansible
+  else
+    sudo apt-get upgrade ansible
+  fi
 fi
 
-if [ ! -x /usr/local/bin/jq ]; then
-  brew install jq
+# gather python facts
+if [ -n ${os_darwin+x} ]; then
+  if [ ! -x /usr/local/bin/jq ]; then
+    brew install jq
+  fi
+  python_version=$(brew info ansible --json | jq '[.[] | .dependencies]' | grep python | head -1 | tr -d '[:blank:]' | tr -d \")
+  python_path="/usr/local/opt/$python_version/bin"
+else
+  python_version=$(python3 --version | tr '[:upper:]' '[:lower:]') && python_version="${python_version/ /@}"
+  python_path="/usr/bin"
 fi
-
-python_version=$(brew info ansible --json | jq '[.[] | .dependencies]' | grep python | head -1 | tr -d '[:blank:]' | tr -d \")
-python_path="/usr/local/opt/$python_version/bin"
 ansible_python_interpreter="$python_path/python3"
 
 # parse command line arguments

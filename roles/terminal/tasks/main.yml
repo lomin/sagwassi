@@ -1,0 +1,35 @@
+---
+- name: install terminal utilities
+  apt:
+    name: zsh,gnupg,jq,fd,fzf,ripgrep,romkatv/powerlevel10k/powerlevel10k,tig,vim
+    state: latest
+    update_cache: yes
+
+- name: activate zsh
+  command: chsh -s /usr/bin/zsh
+
+- name: copy .zshrc
+  copy:
+    src: files/.zshrc
+    dest: "{{ home }}/.zshrc"
+    owner: "{{ user }}"
+
+- name: copy vimfiles
+  git:
+    repo: https://github.com/lomin/vimfiles.git
+    dest: "{{ home }}/vimfiles"
+    update: yes
+
+- name: link .vimrc
+  file:
+    src: "{{ home }}/vimfiles/.vimrc"
+    dest: "{{ home }}/.vimrc"
+    owner: "{{ user }}"
+    state: link
+
+- name: install powerlevel10k
+  git:
+    repo: https://github.com/romkatv/powerlevel10k.git
+    dest: ~/powerlevel10k
+    depth: 1
+    

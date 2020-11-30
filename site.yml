@@ -13,3 +13,4 @@
   - hosts: os_Ubuntu
     roles:
       - sagwassi_ubuntu
+      - terminal

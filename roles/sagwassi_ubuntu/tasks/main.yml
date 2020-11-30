@@ -1,0 +1,14 @@
+---
+- name: copy sagwassi to /usr/local/bin
+  copy:
+    src: "{{ sagwassi_dir }}/sagwassi"
+    dest: /usr/local/bin/sagwassi
+    owner: "{{ user }}"
+    mode: '0755'
+    force: yes
+  become: true
+  tags:
+    - sagwassi
+
+- import_tasks: debug.yml
+  tags: [ never, debug ]

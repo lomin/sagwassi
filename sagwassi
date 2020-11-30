@@ -79,11 +79,12 @@ if [ -n "$os_darwin" ]; then
   fi
   python_version=$(brew info ansible --json | jq '[.[] | .dependencies]' | grep python | head -1 | tr -d '[:blank:]' | tr -d \")
   python_path="/usr/local/opt/$python_version/bin"
+  ansible_python_interpreter="$python_path/python3"
 else
-  python_version=$(python3 --version | tr '[:upper:]' '[:lower:]') && python_version="${python_version/ /@}"
+  python_version=$(python --version | tr '[:upper:]' '[:lower:]') && python_version="${python_version/ /@}"
   python_path="/usr/bin"
+  ansible_python_interpreter=$(which python)
 fi
-ansible_python_interpreter="$python_path/python3"
 
 # parse command line arguments
 for ARGUMENT in $all_args; do

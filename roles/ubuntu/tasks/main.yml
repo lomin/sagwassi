@@ -1,0 +1,6 @@
+---
+- name: upgrade ubuntu
+  apt:
+    update_cache: yes
+    upgrade: yes
+  become: yes

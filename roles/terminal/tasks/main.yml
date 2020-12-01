@@ -3,7 +3,6 @@
   apt:
     name: zsh,gnupg,jq,tig,vim
     state: latest
-    update_cache: yes
   become: yes
 
 - name: activate zsh

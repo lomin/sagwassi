@@ -62,7 +62,7 @@ if ! ansible -h >/dev/null 2>/dev/null; then
   if [ -n "$os_darwin" ]; then
     brew install ansible
   else
-    sudo apt-get install ansible
+    sudo apt-get update && sudo apt-get install ansible
   fi
 else
   if [ -n "$os_darwin" ]; then
@@ -143,8 +143,10 @@ ansible_tags=${ansible_tags:-all}
 ssh_status=0
 ssh-add -l &>/dev/null || ssh_status="$?"
 if [ "$ssh_status" -eq 2 ] && [ -z ${ssh_agent_subprocess+x} ]; then # ignore SC2154
-  echo "Starting ssh-agent"
-  exec /usr/bin/ssh-agent "$sagwassi_sh" "$all_args" "ssh_agent_subprocess=true"
+  if eval "$(ssh-agent -s)" || ssh_status="$?" && [ "$ssh_status" -gt 0 ]; then
+    echo "Starting ssh-agent"
+    exec /usr/bin/ssh-agent "$sagwassi_sh" "$all_args" "ssh_agent_subprocess=true"
+  fi
 else
   [ "$ssh_status" -gt 0 ] && ssh-add ${ssh_key:+"$ssh_key"} && ssh_status="$?"
   [ "$ssh_status" -gt 0 ] && {

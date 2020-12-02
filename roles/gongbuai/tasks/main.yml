@@ -1,0 +1,13 @@
+---
+- name: Unarchive speech archive
+  unarchive:
+    src: https://localhost:8000/librispeech.tar.gz
+    dest: ~/data
+    remote_src: yes
+  tags: [ never, remote ]
+
+- name: Copy speech archive
+  unarchive:
+    src: "{{ home }}"/development/gongbuai/librispeech.tar.gz
+    dest: ~/
+  tags: [ never, local ]

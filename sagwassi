@@ -142,8 +142,8 @@ ansible_tags=${ansible_tags:-all}
 # ssh setup for git
 ssh_status=0
 ssh-add -l &>/dev/null || ssh_status="$?"
-if [ "$ssh_status" -eq 2 ] && [ -z ${ssh_agent_subprocess+x} ] &&
-  eval "$(ssh-agent -s)" && ssh_status="$?" && [ "$ssh_status" -gt 0 ]; then # ignore SC2154
+if [ "$ssh_status" -eq 2 ] && [ -z ${ssh_agent_subprocess+x} ] && # ignore SC2154
+  eval "$(ssh-agent -s)" && ssh_status="$?" && [ "$ssh_status" -gt 0 ]; then  
   echo "Starting ssh-agent"
   exec /usr/bin/ssh-agent "$sagwassi_sh" "$all_args" "ssh_agent_subprocess=true"
 else

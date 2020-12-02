@@ -1,0 +1,28 @@
+---
+- name: install pip3
+  apt:
+    name: python3-pip
+  become: yes
+
+- name: make pip3 standard
+  file:
+      src: /usr/bin/pip3
+      dest: /usr/bin/pip
+      state: link
+      force: yes
+  become: yes
+
+- name: Upgrade pip itself
+  pip:
+    name: pip
+    state: latest
+
+- name: install jupyter notebook
+  pip:
+    name: notebook
+    state: latest
+
+- name: install graphviz
+  apt:
+    name: graphviz
+  become: yes

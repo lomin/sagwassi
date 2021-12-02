@@ -43,7 +43,7 @@ fi
 
 if [ "$os_darwin" ] ; then
   export PATH=/usr/local/bin:$PATH
-  if [ ! -x /usr/local/bin/brew ]; then
+  if ! brew -h >/dev/null 2>/dev/null; then
     echo "installing homebrew ..."
     /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
   fi

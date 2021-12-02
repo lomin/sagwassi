@@ -77,7 +77,7 @@ if [ -n "$os_darwin" ]; then
   if [ ! -x /usr/local/bin/jq ]; then
     brew install jq
   fi
-  python_version=$(brew info ansible --json | jq '[.[] | .dependencies]' | grep python | head -1 | tr -d '[:blank:]' | tr -d \")
+  python_version=$(brew info ansible --json | jq '[.[] | .dependencies]' | grep python | head -1 | tr -d '[:blank:]' | tr -d \" | tr -d \,)
   python_path="/usr/local/opt/$python_version/bin"
   ansible_python_interpreter="$python_path/python3"
 else

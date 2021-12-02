@@ -45,7 +45,7 @@ if [ "$os_darwin" ] ; then
   export PATH=/usr/local/bin:$PATH
   if ! brew -h >/dev/null 2>/dev/null; then
     echo "installing homebrew ..."
-    /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+    ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"
   fi
 fi
 
@@ -74,7 +74,7 @@ fi
 
 # gather python facts
 if [ -n "$os_darwin" ]; then
-  if [ ! -x /usr/local/bin/jq ]; then
+  if ! jq -h >/dev/null 2>/dev/null; then
     brew install jq
   fi
   python_version=$(brew info ansible --json | jq '[.[] | .dependencies]' | grep python | head -1 | tr -d '[:blank:]' | tr -d \" | tr -d \,)
@@ -84,6 +84,10 @@ else
   python_version=$(python --version | tr '[:upper:]' '[:lower:]') && python_version="${python_version/ /@}"
   python_path="/usr/bin"
   ansible_python_interpreter=$(which python)
+fi
+
+if ! "$ansible_python_interpreter" -h >/dev/null 2>/dev/null; then
+  ansible_python_interpreter=$(which python3)
 fi
 
 # parse command line arguments

@@ -9,7 +9,7 @@ git_url=https://github.com/lomin/sagwassi.git git_branch=dlfp sagwassi_reinstall
 
 ### with vagrant ###
 ```bash
-home=/vagrant git_url=https://github.com/lomin/sagwassi.git git_branch=dlfp sagwassi_reinstall=true bash <(curl -s https://raw.githubusercontent.com/lomin/sagwassi/master/sagwassi)
+ansible_extra_vars=project_dir#/vagrant git_url=https://github.com/lomin/sagwassi.git git_branch=dlfp sagwassi_reinstall=true bash <(curl -s https://raw.githubusercontent.com/lomin/sagwassi/master/sagwassi)
 ```
 
 # About

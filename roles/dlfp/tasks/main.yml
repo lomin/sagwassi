@@ -6,5 +6,4 @@
     cache_valid_time: 0
     state: present
   become: yes
-  when: latest_ubuntu
   tags: [ init, mkl ]

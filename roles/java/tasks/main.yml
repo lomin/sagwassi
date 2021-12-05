@@ -1,5 +1,5 @@
 ---
-- name: install openjdk-14-dbg
+- name: install java
   apt:
     name: openjdk-17-jdk
   become: yes

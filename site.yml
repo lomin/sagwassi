@@ -13,3 +13,6 @@
   - hosts: os_Ubuntu
     roles:
       - sagwassi_ubuntu
+      - java
+      - clojure
+      - dlfp

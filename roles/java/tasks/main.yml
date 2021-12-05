@@ -1,0 +1,11 @@
+---
+- name: install openjdk-14-dbg
+  apt:
+    name: openjdk-14-dbg
+  become: yes
+  tags: [ java ]
+
+- name: update java certificates
+  command: update-ca-certificates -f
+  become: yes
+  tags: [ java ]

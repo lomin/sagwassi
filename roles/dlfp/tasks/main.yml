@@ -9,9 +9,9 @@
   tags: [ mkl, dlfp ]
 
 - name: copy start.sh
-  copy:
+  template:
     src: files/start.sh
-    dest: "/vagrant/start.sh"
+    dest: "{{ home }}/start.sh"
     owner: "{{ user }}"
     mode: 0744
     force: yes

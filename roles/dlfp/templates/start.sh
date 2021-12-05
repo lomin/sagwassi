@@ -1,0 +1,1 @@
+pushd {{ project_dir }} && lein repl :start :host 0.0.0.0 :port 5001 && popd

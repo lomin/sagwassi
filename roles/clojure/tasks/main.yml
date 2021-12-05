@@ -10,7 +10,7 @@
   become: yes
   tags: [ clojure ]
 
-- name: install leinngen
+- name: install leiningen
   apt:
     name: leiningen
   become: yes

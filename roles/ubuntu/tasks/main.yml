@@ -1,0 +1,13 @@
+---
+- name: upgrade ubuntu
+  apt:
+    update_cache: yes
+    upgrade: yes
+  become: yes
+  tags: [ init, upgrade ]
+
+- name: install acl
+  apt:
+    name: acl
+  become: yes
+

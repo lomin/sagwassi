@@ -8,7 +8,7 @@
   become: yes
   tags: [ mkl, dlfp ]
 
-- name: copy .tmux.conf
+- name: copy start.sh
   copy:
     src: files/start.sh
     dest: "/vagrant/start.sh"

@@ -1,7 +1,7 @@
 ---
 - name: install openjdk-14-dbg
   apt:
-    name: openjdk-14-dbg
+    name: openjdk-17-jdk
   become: yes
   tags: [ java ]
 

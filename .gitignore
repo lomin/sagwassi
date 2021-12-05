@@ -143,5 +143,8 @@ cython_debug/
 .idea/
 *.iml
 
+# Vagrant
+.vagrant/*
+
 # sagwassi specifics
 sagwassi.properties

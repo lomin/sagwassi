@@ -43,9 +43,9 @@ fi
 
 if [ "$os_darwin" ] ; then
   export PATH=/usr/local/bin:$PATH
-  if [ ! -x /usr/local/bin/brew ]; then
+  if ! brew -h >/dev/null 2>/dev/null; then
     echo "installing homebrew ..."
-    ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"
+    /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install.sh)"
   fi
 fi
 
@@ -62,7 +62,7 @@ if ! ansible -h >/dev/null 2>/dev/null; then
   if [ -n "$os_darwin" ]; then
     brew install ansible
   else
-    sudo apt-get install ansible
+    sudo apt-get update && sudo apt-get install ansible
   fi
 else
   if [ -n "$os_darwin" ]; then
@@ -73,17 +73,24 @@ else
 fi
 
 # gather python facts
+if python -h >/dev/null 2>/dev/null; then
+  ansible_python_interpreter=$(command -v python)
+fi
+# prefer python3
+if python3 -h >/dev/null 2>/dev/null; then
+  ansible_python_interpreter=$(command -v python3)
+fi
+
 if [ -n "$os_darwin" ]; then
-  if [ ! -x /usr/local/bin/jq ]; then
+  if ! jq -h >/dev/null 2>/dev/null; then
     brew install jq
   fi
-  python_version=$(brew info ansible --json | jq '[.[] | .dependencies]' | grep python | head -1 | tr -d '[:blank:]' | tr -d \")
-  python_path="/usr/local/opt/$python_version/bin"
-else
-  python_version=$(python3 --version | tr '[:upper:]' '[:lower:]') && python_version="${python_version/ /@}"
-  python_path="/usr/bin"
+  python_version=$(brew info ansible --json | jq '[.[] | .dependencies]' | grep python | head -1 | tr -d '[:blank:]' | tr -d \" | tr -d \,)
+  ansible_python_interpreter_="/usr/local/opt/$python_version/bin/python3"
+  if ! ansible_python_interpreter_ -h >/dev/null 2>/dev/null; then
+    ansible_python_interpreter=${ansible_python_interpreter_}
+  fi
 fi
-ansible_python_interpreter="$python_path/python3"
 
 # parse command line arguments
 for ARGUMENT in $all_args; do
@@ -141,7 +148,8 @@ ansible_tags=${ansible_tags:-all}
 # ssh setup for git
 ssh_status=0
 ssh-add -l &>/dev/null || ssh_status="$?"
-if [ "$ssh_status" -eq 2 ] && [ -z ${ssh_agent_subprocess+x} ]; then # ignore SC2154
+if [ "$ssh_status" -eq 2 ] && [ -z ${ssh_agent_subprocess+x} ] && # ignore SC2154
+  eval "$(ssh-agent -s)" && ssh_status="$?" && [ "$ssh_status" -gt 0 ]; then  
   echo "Starting ssh-agent"
   exec /usr/bin/ssh-agent "$sagwassi_sh" "$all_args" "ssh_agent_subprocess=true"
 else
@@ -177,5 +185,6 @@ else
     git -C "$sagwassi_dir" pull
   fi
   read -ra ansible_flags_array < <(echo "$ansible_flags" | tr , " ")
-  (cd "$sagwassi_dir" && exec ansible-playbook "${ansible_flags_array[@]}" -i "$sagwassi_dir/hosts.yml" "$sagwassi_dir/site.yml" --extra-vars "$all_args sagwassi_dir=$sagwassi_dir sagwassi_sh=$sagwassi_sh home=$home user=$user python_version=$python_version python_path=$python_path ansible_python_interpreter=$ansible_python_interpreter" --tags="$ansible_tags" --skip-tags="$ansible_skip_tags")
+  (cd "$sagwassi_dir" && exec ansible-playbook "${ansible_flags_array[@]}" -i "$sagwassi_dir/hosts.yml" "$sagwassi_dir/site.yml" --extra-vars "$all_args sagwassi_dir=$sagwassi_dir sagwassi_sh=$sagwassi_sh home=$home user=$user ansible_python_interpreter=$ansible_python_interpreter" --tags="$ansible_tags" --skip-tags="$ansible_skip_tags")
 fi
+

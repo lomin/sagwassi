@@ -73,22 +73,23 @@ else
 fi
 
 # gather python facts
+if python -h >/dev/null 2>/dev/null; then
+  ansible_python_interpreter=$(command -v python)
+fi
+# prefer python3
+if python3 -h >/dev/null 2>/dev/null; then
+  ansible_python_interpreter=$(command -v python3)
+fi
+
 if [ -n "$os_darwin" ]; then
   if ! jq -h >/dev/null 2>/dev/null; then
     brew install jq
   fi
   python_version=$(brew info ansible --json | jq '[.[] | .dependencies]' | grep python | head -1 | tr -d '[:blank:]' | tr -d \" | tr -d \,)
-  python_path="/usr/local/opt/$python_version/bin"
-  ansible_python_interpreter="$python_path/python3"
-else
-  python_version=$(python --version | tr '[:upper:]' '[:lower:]') && python_version="${python_version/ /@}"
-  python_path="/usr/bin"
-  ansible_python_interpreter=$(which python)
-fi
-
-
-if ! "$ansible_python_interpreter" -h >/dev/null 2>/dev/null; then
-  ansible_python_interpreter=$(which python3)
+  ansible_python_interpreter_="/usr/local/opt/$python_version/bin/python3"
+  if ! ansible_python_interpreter_ -h >/dev/null 2>/dev/null; then
+    ansible_python_interpreter=${ansible_python_interpreter_}
+  fi
 fi
 
 # parse command line arguments
@@ -184,6 +185,6 @@ else
     git -C "$sagwassi_dir" pull
   fi
   read -ra ansible_flags_array < <(echo "$ansible_flags" | tr , " ")
-  (cd "$sagwassi_dir" && exec ansible-playbook "${ansible_flags_array[@]}" -i "$sagwassi_dir/hosts.yml" "$sagwassi_dir/site.yml" --extra-vars "$all_args sagwassi_dir=$sagwassi_dir sagwassi_sh=$sagwassi_sh home=$home user=$user python_version=$python_version python_path=$python_path ansible_python_interpreter=$ansible_python_interpreter" --tags="$ansible_tags" --skip-tags="$ansible_skip_tags")
+  (cd "$sagwassi_dir" && exec ansible-playbook "${ansible_flags_array[@]}" -i "$sagwassi_dir/hosts.yml" "$sagwassi_dir/site.yml" --extra-vars "$all_args sagwassi_dir=$sagwassi_dir sagwassi_sh=$sagwassi_sh home=$home user=$user ansible_python_interpreter=$ansible_python_interpreter" --tags="$ansible_tags" --skip-tags="$ansible_skip_tags")
 fi
 

@@ -2,6 +2,8 @@
 ### Usage: sagwassi [<option>*]
 ###
 ### where <option> is one of:
+###   ansible_extra_vars=<csv> Run ansible with extra vars in <csv>, where one entry is key#value
+###                            Example: ansible_extra_vars=project_dir#/tmp/sagwassi,home#/home/sagwassi
 ###   ansible_flags=<csv>      Run ansible with flags in <csv>
 ###                            Example: ansible_flags=--step,--version
 ###                            Default: ansible_flags=--ask-become-pass,-vv
@@ -11,7 +13,6 @@
 ###                            Example: ansible_tags=debug,sagwassi
 ###   git_branch=<branch>      Set remote git branch of sagwassi to <branch>
 ###   git_url=<url>            Set remote git repository of sagwassi to <url>
-###   home=<path>              Run ansible with <path> as home directory
 ###   sagwassi_dir=<path>      Set the base dir of sagwassi to <path>
 ###   sagwassi_mode=local      Do not pull latest sagwassi updates from repository
 ###   sagwassi_reinstall=true  Remove existing installation and reinstall sagwassi
@@ -99,11 +100,11 @@ for ARGUMENT in $all_args; do
   VALUE=$(echo "$ARGUMENT" | cut -f2 -d=)
 
   case "$KEY" in
-  home) home=${VALUE} ;;
   sagwassi_dir) sagwassi_dir=${VALUE} ;;
   sagwassi_mode) sagwassi_mode=${VALUE} ;;
   sagwassi_reinstall) sagwassi_reinstall=${VALUE} ;;
   sagwassi_sh) sagwassi_sh=${VALUE} ;;
+  ansible_extra_vars) ansible_extra_vars=${VALUE} ;;
   ansible_flags) ansible_flags=${VALUE} ;;
   ansible_skip_tags) ansible_skip_tags=${VALUE} ;;
   ansible_tags) ansible_tags=${VALUE} ;;
@@ -125,7 +126,7 @@ if [ -f "$sagwassi_properties" ] && [ -z ${sagwassi_reinstall+x} ]; then # ignor
     VALUE=$(echo "$LINE" | cut -f2 -d=)
 
     case "$KEY" in
-    home) home=${home:-$VALUE} ;;
+    ansible_extra_vars) ansible_extra_vars=${ansible_extra_vars:-$VALUE} ;;
     ansible_flags) ansible_flags=${ansible_flags:-$VALUE} ;;
     ansible_skip_tags) ansible_skip_tags=${ansible_skip_tags:-$VALUE} ;;
     ansible_tags) ansible_tags=${ansible_tags:-$VALUE} ;;
@@ -142,7 +143,6 @@ else # reinstall sagwassi
 fi
 
 # ensure at least default values
-home=${home:-$HOME}
 user=${user:-$USER}
 sagwassi_sh=${sagwassi_sh:-"$0"}
 ansible_flags=${ansible_flags:-"--ask-become-pass,-vv"}
@@ -177,7 +177,7 @@ else
   if [ ! -f "$sagwassi_properties" ]; then
     git clone "$git_url" "$sagwassi_dir"
     {
-      echo home="$home"
+      echo ansible_extra_vars="$ansible_extra_vars"
       echo ansible_flags="$ansible_flags"
       echo ansible_skip_tags="$ansible_skip_tags"
       echo ansible_tags="$ansible_tags"
@@ -195,7 +195,11 @@ else
     git -C "$sagwassi_dir" checkout "$git_branch"
     git -C "$sagwassi_dir" pull
   fi
+  if [ -n "$ansible_extra_vars" ]; then
+    ansible_extra_vars=$(echo "$ansible_extra_vars" | tr \# "=" | tr , " ")
+    all_args="$ansible_extra_vars $all_args"
+  fi
   read -ra ansible_flags_array < <(echo "$ansible_flags" | tr , " ")
-  (cd "$sagwassi_dir" && exec ansible-playbook "${ansible_flags_array[@]}" -i "$sagwassi_dir/hosts.yml" "$sagwassi_dir/site.yml" --extra-vars "$all_args sagwassi_dir=$sagwassi_dir sagwassi_sh=$sagwassi_sh home=$home user=$user ansible_python_interpreter=$ansible_python_interpreter" --tags="$ansible_tags" --skip-tags="$ansible_skip_tags")
+  (cd "$sagwassi_dir" && exec ansible-playbook "${ansible_flags_array[@]}" -i "$sagwassi_dir/hosts.yml" "$sagwassi_dir/site.yml" --extra-vars "$all_args sagwassi_dir=$sagwassi_dir sagwassi_sh=$sagwassi_sh user=$user ansible_python_interpreter=$ansible_python_interpreter" --tags="$ansible_tags" --skip-tags="$ansible_skip_tags")
 fi
 

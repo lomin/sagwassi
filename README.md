@@ -4,7 +4,7 @@ Extensible OS X provisioning with Ansible.
 ## Usage ##
 
 ```bash
-bash <(curl -s https://raw.githubusercontent.com/lomin/sagwassi/master/sagwassi)
+git_url=https://github.com/lomin/sagwassi.git git_branch=dlfp sagwassi_reinstall=true bash <(curl -s https://raw.githubusercontent.com/lomin/sagwassi/master/sagwassi)
 ```
 
 # About

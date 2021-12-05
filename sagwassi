@@ -45,7 +45,7 @@ if [ "$os_darwin" ] ; then
   export PATH=/usr/local/bin:$PATH
   if ! brew -h >/dev/null 2>/dev/null; then
     echo "installing homebrew ..."
-    ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"
+    /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install.sh)"
   fi
 fi
 
@@ -85,6 +85,7 @@ else
   python_path="/usr/bin"
   ansible_python_interpreter=$(which python)
 fi
+
 
 if ! "$ansible_python_interpreter" -h >/dev/null 2>/dev/null; then
   ansible_python_interpreter=$(which python3)
@@ -185,3 +186,4 @@ else
   read -ra ansible_flags_array < <(echo "$ansible_flags" | tr , " ")
   (cd "$sagwassi_dir" && exec ansible-playbook "${ansible_flags_array[@]}" -i "$sagwassi_dir/hosts.yml" "$sagwassi_dir/site.yml" --extra-vars "$all_args sagwassi_dir=$sagwassi_dir sagwassi_sh=$sagwassi_sh home=$home user=$user python_version=$python_version python_path=$python_path ansible_python_interpreter=$ansible_python_interpreter" --tags="$ansible_tags" --skip-tags="$ansible_skip_tags")
 fi
+

@@ -9,3 +9,8 @@
   shell: curl -sL https://download.clojure.org/install/linux-install-1.10.3.1040.sh | sudo -E bash -
   become: yes
   tags: [ clojure ]
+
+- name: install leinngen
+  apt:
+    name: leiningen
+  become: yes

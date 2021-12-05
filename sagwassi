@@ -125,9 +125,12 @@ if [ -f "$sagwassi_properties" ] && [ -z ${sagwassi_reinstall+x} ]; then # ignor
     VALUE=$(echo "$LINE" | cut -f2 -d=)
 
     case "$KEY" in
+    home) home=${home:-$VALUE} ;;
+    ansible_flags) ansible_flags=${ansible_flags:-$VALUE} ;;
+    ansible_skip_tags) ansible_skip_tags=${ansible_skip_tags:-$VALUE} ;;
+    ansible_tags) ansible_tags=${ansible_tags:-$VALUE} ;;
     git_url) git_url=${git_url:-$VALUE} ;;
     git_branch) git_branch=${git_branch:-$VALUE} ;;
-    home) home=${home:-$VALUE} ;;
     ssh_key) ssh_key=${ssh_key:-$VALUE} ;;
     user) user=${user:-$VALUE} ;;
     *) ;;
@@ -173,8 +176,16 @@ else
   # clone sagwassi if not already there and save git vars
   if [ ! -f "$sagwassi_properties" ]; then
     git clone "$git_url" "$sagwassi_dir"
-    echo git_url="$git_url" >>"$sagwassi_properties"
-    echo git_branch="$git_branch" >>"$sagwassi_properties"
+    {
+      echo home="$home"
+      echo ansible_flags="$ansible_flags"
+      echo ansible_skip_tags="$ansible_skip_tags"
+      echo ansible_tags="$ansible_tags"
+      echo git_url="$git_url"
+      echo git_branch="$git_branch"
+      echo ssh_key="$ssh_key"
+      echo user="$user"
+    } > "$sagwassi_properties"
   fi
 
   if [ "$sagwassi_mode" = local ]; then

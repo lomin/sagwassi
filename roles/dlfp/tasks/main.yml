@@ -10,7 +10,7 @@
 
 - name: copy start.sh
   template:
-    src: files/start.sh
+    src: start.sh
     dest: "{{ home }}/start.sh"
     owner: "{{ user }}"
     mode: 0744

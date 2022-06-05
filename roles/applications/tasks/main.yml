@@ -1,0 +1,36 @@
+---
+- name: Add required Homebrew repositories
+  community.general.homebrew_tap:
+    name:
+      - homebrew/cask-drivers
+      - homebrew/cask-fonts
+    state: present
+
+- name: install applications
+  community.general.homebrew_cask:
+    name:
+      - 1password
+      - 1password-cli
+      - adobe-digital-editions
+      - anki
+      - appcleaner
+      - chrysalis
+      - docker
+      - dropbox
+      - eddie
+      - evernote
+      - font-fira-code
+      - google-chrome
+      - intellij-idea-ce
+      - iterm2
+      - keepassxc
+      - mattermost
+      - ubiquiti-unifi-controller
+      - vagrant
+      - visualvm
+      - yt-music
+      - zoom
+    state: latest
+  tags:
+    - applications
+    - homebrew

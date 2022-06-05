@@ -10,10 +10,5 @@
   - hosts: os_MacOSX
     roles:
       - sagwassi
-      - isunsin
       - osx
       - terminal
-
-  - hosts: os_Ubuntu
-    roles:
-      - sagwassi_ubuntu

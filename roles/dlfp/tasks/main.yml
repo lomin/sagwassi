@@ -6,6 +6,8 @@
     - "deb http://archive.ubuntu.com/ubuntu/ jammy multiverse"
     - "deb http://archive.ubuntu.com/ubuntu/ jammy-updates multiverse"
     - "deb http://security.ubuntu.com/ubuntu/ jammy-security multiverse"
+  become: yes
+  tags: [ mkl, dlfp ]
     
 - name: install intel-mkl
   apt:

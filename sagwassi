@@ -86,11 +86,6 @@ if [ -n "$os_darwin" ]; then
   if ! jq -h >/dev/null 2>/dev/null; then
     brew install jq
   fi
-  python_version=$(brew info ansible --json | jq '[.[] | .dependencies]' | grep python | head -1 | tr -d '[:blank:]' | tr -d \" | tr -d \,)
-  ansible_python_interpreter_="/usr/local/opt/$python_version/bin/python3"
-  if ! ansible_python_interpreter_ -h >/dev/null 2>/dev/null; then
-    ansible_python_interpreter=${ansible_python_interpreter_}
-  fi
 fi
 
 # parse command line arguments

@@ -1,0 +1,8 @@
+---
+- name: install Clojure
+  community.general.homebrew:
+    name:
+      - clojure
+    state: latest
+  tags:
+    - clojure

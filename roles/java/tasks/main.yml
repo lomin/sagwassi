@@ -1,0 +1,8 @@
+---
+- name: install openjdk
+  community.general.homebrew:
+    name:
+      - openjdk
+    state: latest
+  tags:
+    - clojure

@@ -152,10 +152,6 @@ if [ "$ssh_status" -eq 2 ] && [ -z ${ssh_agent_subprocess+x} ] && # ignore SC215
   exec /usr/bin/ssh-agent "$sagwassi_sh" "$all_args" "ssh_agent_subprocess=true"
 else
   [ "$ssh_status" -gt 0 ] && ssh-add ${ssh_key:+"$ssh_key"} && ssh_status="$?"
-  [ "$ssh_status" -gt 0 ] && {
-    echo "There is a problem with your ssh keys, sagwassi does not know how to fix that and exits. You could try to set the path to your ssh-key explicitly by via the corresponding command line argument or by editing the sagwassi.properties file. Call 'sagwassi -h' if you want to know how to do that."
-    exit $ssh_status
-  }
 
   # ensure vars via prompt
   if [ -z ${git_url+x} ]; then

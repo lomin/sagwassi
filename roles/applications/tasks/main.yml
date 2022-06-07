@@ -5,6 +5,8 @@
       - homebrew/cask-drivers
       - homebrew/cask-fonts
     state: present
+  tags:
+    - applications
 
 - name: install applications
   community.general.homebrew_cask:
@@ -25,6 +27,7 @@
       - iterm2
       - keepassxc
       - mattermost
+      - texshop
       - ubiquiti-unifi-controller
       - vagrant
       - visualvm
@@ -33,4 +36,3 @@
     state: latest
   tags:
     - applications
-    - homebrew

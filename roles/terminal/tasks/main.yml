@@ -12,7 +12,7 @@
       - vim
     state: latest
   tags:
-    - homebrew
+    - terminal
 
 - name: copy .zshrc
   copy:

@@ -17,6 +17,7 @@
       - anki
       - appcleaner
       - chrysalis
+      - dbngin
       - docker
       - dropbox
       - eddie
@@ -26,9 +27,10 @@
       - intellij-idea-ce
       - iterm2
       - keepassxc
+      - mactex
       - mattermost
-      - texshop
       - ubiquiti-unifi-controller
+      - utm
       - vagrant
       - visualvm
       - yt-music

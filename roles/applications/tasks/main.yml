@@ -13,26 +13,12 @@
     name:
       - 1password
       - 1password-cli
-      - adobe-digital-editions
-      - anki
       - appcleaner
       - chrysalis
-      - dbngin
       - docker
-      - dropbox
-      - eddie
-      - evernote
       - font-fira-code
       - google-chrome
-      - intellij-idea-ce
       - iterm2
-      - keepassxc
-      - mactex
-      - mattermost
-      - ubiquiti-unifi-controller
-      - utm
-      - vagrant
-      - visualvm
       - yt-music
       - zoom
     state: latest
